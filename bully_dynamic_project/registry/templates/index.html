@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bully Dashboard</title>
+</head>
+<body>
+
+<h1>Nodes Dashboard</h1>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Node ID</th>
+            <th>Status</th>
+            <th>Leader</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="nodes"></tbody>
+</table>
+
+<script>
+async function loadNodes() {
+    const res = await fetch('/nodes');
+    const nodes = await res.json();
+
+    const leaderRes = await fetch('/leader');
+    const leaderData = await leaderRes.json();
+
+    let html = "";
+
+    for (let id in nodes) {
+        html += `
+        <tr>
+            <td>${id}</td>
+            <td>Active</td>
+            <td>${leaderData.leader == id ? "👑 Leader" : ""}</td>
+            <td>
+                <button onclick="suspend('${id}')">Suspend</button>
+            </td>
+        </tr>`;
+    }
+
+    document.getElementById("nodes").innerHTML = html;
+}
+
+async function suspend(id) {
+    await fetch('/suspend/' + id, {method: 'POST'});
+    loadNodes();
+}
+
+setInterval(loadNodes, 2000);
+loadNodes();
+</script>
+
+</body>
+</html>
