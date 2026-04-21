@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Raft Dashboard</title>
+</head>
+<body>
+
+<h1>Raft Election Dashboard</h1>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Node ID</th>
+            <th>State</th>
+            <th>Leader</th>
+        </tr>
+    </thead>
+    <tbody id="nodes"></tbody>
+</table>
+
+<script>
+async function loadData() {
+
+    const nodesRes = await fetch('/nodes');
+    const nodes = await nodesRes.json();
+
+    const stateRes = await fetch('/state');
+    const states = await stateRes.json();
+
+    const leaderRes = await fetch('/leader');
+    const leaderData = await leaderRes.json();
+
+    let html = "";
+
+    for (let id of nodes) {
+
+        let state = states[id] || "UNKNOWN";
+
+        html += `<tr>
+            <td>${id}</td>
+            <td>${state}</td>
+            <td>${leaderData.leader == id ? "👑 Leader" : ""}</td>
+        </tr>`;
+    }
+
+    document.getElementById("nodes").innerHTML = html;
+}
+
+setInterval(loadData, 2000);
+loadData();
+</script>
+
+</body>
+</html>
